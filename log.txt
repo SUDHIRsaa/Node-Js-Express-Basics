@@ -1,0 +1,5 @@
+/%0A
+ +"hello"GET / +"hello"
+GET / +"hello"
+POST /post +"hello"
+GET /?name=%22sudhir%22 +"hello"

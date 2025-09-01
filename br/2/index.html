@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live Log Viewer (Socket.IO)</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body { font-family: monospace; background: #111; color: #0f0; padding: 20px; }
+    pre { max-height: 80vh; overflow-y: auto; border: 1px solid #444; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Live Log Updates (Socket.IO)</h2>
+  <pre id="log"></pre>
+
+  <script>
+    const socket = io();
+    const logElement = document.getElementById("log");
+
+    socket.on("log", (msg) => {
+      logElement.textContent += msg;
+      logElement.scrollTop = logElement.scrollHeight;
+    });
+  </script>
+</body>
+</html>

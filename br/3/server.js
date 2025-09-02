@@ -16,13 +16,7 @@ if (!fs.existsSync(logFile)) {
   fs.writeFileSync(logFile, "");
 }
 
-// --- Temporary log generator for testing ---
-setInterval(() => {
-  const logEntry = `Log entry at ${new Date().toISOString()}\n`;
-  fs.appendFile(logFile, logEntry, (err) => {
-    if (err) console.error("Error writing log:", err);
-  });
-}, 2000);
+
 
 // Rolling buffer (max 10 logs)
 let recentLogs = [];

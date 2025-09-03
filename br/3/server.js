@@ -11,24 +11,24 @@ const io = new Server(server);
 const PORT = 3000;
 const logFile = path.join(__dirname, "app.log");
 
-// Ensure log file exists
 if (!fs.existsSync(logFile)) {
   fs.writeFileSync(logFile, "");
 }
 
 
 
-// Rolling buffer (max 10 logs)
+
 let recentLogs = [];
 
-// --- Serve static client ---
 app.use(express.static(path.join(__dirname, "public")));
+app.get("/log", (req, res) => {
+  
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
-// --- WebSocket connections ---
 io.on("connection", (socket) => {
   console.log("Client connected");
-
-  // Send current buffer immediately
+  console.log("socket.id:", socket.id);
   socket.emit("log_batch", recentLogs);
 
   socket.on("disconnect", () => {
@@ -36,31 +36,33 @@ io.on("connection", (socket) => {
   });
 });
 
-// --- Watch file for new data ---
-let lastSize = fs.statSync(logFile).size;
+
+
 
 fs.watchFile(logFile, { interval: 500 }, (curr, prev) => {
+  
   if (curr.size > prev.size) {
     const stream = fs.createReadStream(logFile, {
       start: prev.size,
       end: curr.size,
       encoding: "utf8",
     });
+    
 
     stream.on("data", (chunk) => {
       chunk.split("\n").forEach((line) => {
         if (line.trim().length > 0) {
-          // Insert new line at the start (descending order)
+     
           recentLogs.unshift(line);
 
-          // Keep only 10 latest logs
+          
           if (recentLogs.length > 10) {
             recentLogs = recentLogs.slice(0, 10);
           }
         }
       });
 
-      // Send logs to client
+      
       io.emit("log_batch", recentLogs);
     });
   
@@ -73,7 +75,6 @@ fs.watchFile(logFile, { interval: 500 }, (curr, prev) => {
   }
 });
 
-// --- Start server ---
 server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}/log`);
 });
